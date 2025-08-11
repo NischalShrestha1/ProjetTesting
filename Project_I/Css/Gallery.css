@@ -1,0 +1,256 @@
+*{
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: green;
+    height: 100vh;
+}
+
+header{
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 60px;
+}
+
+nav{
+    height: 55px;
+    background-color: green;
+}
+
+nav a{
+    float: left;
+    margin-left: 20px;
+}
+
+nav a.logo{
+    color:white;
+    font-size: 35px;
+    font-weight: bold;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+nav ul{ 
+float: left;
+margin-left: 30px;
+}
+
+nav ul li{
+    display: inline-block;
+    line-height: 55px;
+    margin: 0 15px;
+}
+
+nav ul li a{
+    color: white;
+    font-size: 18px;
+}
+
+nav ul li a:hover{
+    color: rgb(255, 255, 255,.7)
+}
+
+header nav .logout{
+    position: relative;
+    display: flex;
+    align-items: right;
+    justify-content: right;
+}
+
+.logout a{
+    color: white;
+    font-size: 18px;
+    padding: 17px;
+    background: #4caf50;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 30px;
+}
+
+
+.head{
+    text-align: center;
+    font-size: 40px;
+    margin-bottom: 40px;
+}
+
+section{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.wrapper{
+    background: #fff;
+    width: 1170px;
+    border-radius: 15px;
+    padding: 70px;
+    box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.4);
+}
+
+h1{
+    align-self: center;
+}
+
+.container{
+    max-width: 1200px;
+    width: 100%;
+}
+
+.slider-wrapper {
+    position: relative;
+}
+
+.slider-wrapper .slide-button {
+    position: absolute;
+    top: 50%;
+    height: 50px;
+    width: 50px;
+    color: #fff;
+    border: none;
+    outline: none;
+    background: #000;
+    font-size: 2.2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.slider-wrapper .slide-button:hover {
+    background: #444;
+    
+}
+
+.slider-wrapper .slide-button#prev-slide {
+    left: -20px;
+    display: none;
+}
+
+.slider-wrapper .slide-button#next-slide {
+    right: -20px;
+}
+
+.slider-wrapper .image-list{
+    display: grid;
+    gap: 18px;
+    font-size: 0;
+    margin-bottom: 30px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.slider-wrapper .image-list::-webkit-scrollbar{
+    display: none;
+}
+
+.slider-wrapper .image-list .image-item{
+    width: 250px;
+    height: 350px;
+    object-fit: cover;
+}
+
+.container .slider-scrollbar {
+    height: 24px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+
+}
+
+.slider-scrollbar .scrollbar-track {
+    height: 2px;
+    width: 100%;
+    background: #ccc;
+    position: relative;
+    border-radius: 4px;
+}
+
+.slider-scrollbar:hover .scrollbar-track{
+    height: 4px;
+}
+
+.slider-scrollbar .scrollbar-thumb {
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    background: #000;
+    border-radius: inherit;
+    cursor: grab;
+}
+
+.slider-scrollbar .scrollbar-thumb:active {
+    cursor: grabbing;
+    height: 8px;
+    top: -2px;
+
+}
+
+.slider-scrollbar .scrollbar-thumb::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;
+    bottom: -10px;
+
+}
+
+footer{
+    margin-top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    
+}
+
+.footerContainer{
+    width: 100%;
+    padding: 70px 30px 20px;
+}
+
+.socialIcons{
+    display: flex;
+    justify-content: center;
+}
+
+.socialIcons a{
+    text-decoration: none;
+    padding: 10px;
+    background-color: white;
+    margin: 10px;
+    border-radius: 50%;
+}
+
+.socialIcons a i{
+    font-size: 2em;
+    color: black;
+    opacity: 0.9;
+}
+
+.socialIcons a:hover{
+    background-color: #111;
+    transition: 0.5s;
+}
+
+.socialIcons a:hover i{
+    background-color: white;
+    transition: 0.5s;
+}
+
+.footer-bottom{
+    text-align: center;
+}
+
+.footer-bottom p{
+    color: white;
+}

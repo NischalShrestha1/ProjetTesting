@@ -1,0 +1,160 @@
+<?php
+
+include 'config.php';
+session_start();
+
+// page redirect
+$usermail="";
+$usermail=$_SESSION['usermail'];
+if($usermail == true){
+
+}else{
+  header("location: Login.php");
+}
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jhigu Hotel</title>
+    <link rel="Stylesheet" href="Css/Style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+      /* Popup container */
+      .popup {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 9999; /* Sit on top */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+  
+      /* Popup content */
+      .popup-content {
+          background-color: #fefefe;
+          margin: 5% auto; /* 5% from the top and centered */
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%; /* Could be more or less, depending on screen size */
+          border-radius: 10px;
+          text-align: center;
+      }
+  
+      /* Close button */
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+      }
+  
+      .close:hover,
+      .close:focus {
+          color: black;
+          text-decoration: none;
+          cursor: pointer;
+      }
+  
+      /* Image styling */
+      .hotel-image {
+          max-width: 100%;
+          height: auto;
+          margin-bottom: 20px;
+          border-radius: 10px;
+      }
+  </style>
+</head>
+<body>
+    <header>
+    <nav>
+        <a href="Home.php" class="logo">Jhigu Hotel</a>
+        <ul>
+        <li><a href="Home.php">Home</a></li>
+        <li><a href="Room.php">Rooms</a></li>
+        <li><a href="Team.html">Team</a></li>
+        <li><a href="Gallery.html">Gallery</a></li>
+        <li><a href="Contacts.html">Contact Us</a></li>
+        </ul>
+        <div class="logout">
+            <a href="Logout.php">Log Out</a>
+        </div>
+    </nav>
+    </header>
+    <section>
+        <div class="container">
+            <div class="intro">
+            <h4>Jhigu</h4>
+            <h3>The place you are looking to stay</h3>
+            <p>Welcome to the our Hotel</p>
+            <button onclick="openPopup()">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+		<div id="aboutPopup" class="popup">
+      <!-- Popup content -->
+      <div class="popup-content">
+        <span class="close" onclick="closePopup()">&times;</span>
+        <h2>About Our Hotel</h2>
+        <img src="Images/hotel1.jpg" alt="Hotel Image" class="hotel-image">
+        <p>Welcome to our luxury hotel! We pride ourselves on providing top-notch service and amenities to make your stay memorable. Our hotel features spacious rooms, exquisite dining options, a state-of-the-art fitness center, and a relaxing spa. Whether you're here for business or leisure, we strive to exceed your expectations. Experience the ultimate in comfort and hospitality at our hotel.</p>
+      </div>
+    </div>
+
+    <section id="secondsection">
+        <h1 class="head"> Facilities </h1>
+        <div class="facility">
+          <div class="box">
+            <h2>Swiming pool</h2>
+          </div>
+          <div class="box">
+            <h2>Spa</h2>
+          </div>
+          <div class="box">
+            <h2>24*7 Restaurants</h2>
+          </div>
+          <div class="box">
+            <h2>24*7 Gym</h2>
+          </div>
+          <div class="box">
+            <h2>24*7 service</h2>
+          </div>
+        </div>
+      </section>
+
+    <footer class="footer">
+        <div class="footerContainer">
+           <div class="socialIcons">
+            <a href=""><i class="fa-brands fa-facebook"></i></a>
+            <a href=""><i class="fa-brands fa-instagram"></i></a>
+            <a href=""><i class="fa-brands fa-twitter"></i></a>
+            <a href=""><i class="fa-brands fa-google-plus"></i></a>
+            <a href=""><i class="fa-brands fa-youtube"></i></a>
+           </div>
+        </div>
+            <div class="footer-bottom">
+                <p>Contact info: +9779812012012  Email: info@jhiguhotel.com</p>
+                <p>Madhyapur Thimi-7, Bhaktapur</p>
+            </div>
+          </footer>
+</body>
+<script>
+  // Function to open the popup
+  function openPopup() {
+      document.getElementById("aboutPopup").style.display = "block";
+  }
+  
+  // Function to close the popup
+  function closePopup() {
+      document.getElementById("aboutPopup").style.display = "none";
+  }
+  </script>
+</html>

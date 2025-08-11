@@ -1,0 +1,26 @@
+[
+    {
+      "id": "clothing",
+      "name": "Clothing",
+      "image": "https://i.imgur.com/r9I5FDy.jpg",
+      "description": "Anime-themed clothing and apparel"
+    },
+    {
+      "id": "figures",
+      "name": "Figures",
+      "image": "https://i.imgur.com/5XZwWQb.jpg",
+      "description": "Collectible anime figures and statues"
+    },
+    {
+      "id": "posters",
+      "name": "Posters",
+      "image": "https://i.imgur.com/mn4QZJx.jpg",
+      "description": "High-quality anime posters and wall art"
+    },
+    {
+      "id": "accessories",
+      "name": "Accessories",
+      "image": "https://i.imgur.com/3qZzL9T.jpg",
+      "description": "Anime-themed accessories and gear"
+    }
+  ]

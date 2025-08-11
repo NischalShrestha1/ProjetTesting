@@ -1,0 +1,249 @@
+*{
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    background-color: green;
+}
+
+.container{
+    width: 100%;
+    height: 700px;
+    background-position: center;
+    background-size: cover;
+    background-image: url(../Images/1.jpg);
+    background-attachment: fixed;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.intro{
+    text-align: center;
+}
+
+.intro h4{
+    font-size: 4em;
+    color: #ffce14;
+    letter-spacing: 27px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Oswald', sans-serif;
+}
+
+.intro h3{
+    color: #fff;
+    font-size: 1.5em;
+    margin: 10px 0 0;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.intro p{
+    color: #fff;
+    font-size: 1em;
+    line-height: 1.8em;
+    letter-spacing: 11px;
+    margin: 1em auto;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+.intro button{
+    padding: 15px;
+    background: #4caf50;
+    color: white;
+    font-size: 18px;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    width: 150px;
+    margin: 20px auto 0;
+    border-radius: 30px;
+}
+header{
+    position: relative;
+    overflow: hidden;
+}
+nav{
+    position: fixed;
+    width: 100%;
+    height: 55px;
+    z-index: 200;
+    display: flex;
+    background-color: green;
+}
+
+nav a{
+    float: left;
+    margin-left: 20px;
+}
+
+nav a.logo{
+    color:white;
+    font-size: 35px;
+    font-weight: bold;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+nav ul{ 
+float: left;
+margin-left: 30px;
+}
+
+nav ul li{
+    display: inline-block;
+    line-height: 55px;
+    margin: 0 15px;
+}
+
+nav ul li a{
+    color: white;
+    font-size: 18px;
+}
+
+nav ul li a:hover{
+    color: rgb(255, 255, 255,.7)
+}
+
+header nav .logout{
+    display: flex;
+    align-items: right;
+    justify-content: right;
+}
+
+.logout a{
+    padding: 17px;
+    background: #4caf50;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    margin-left: 450px;
+    border-radius: 30px;
+    color: white;
+    font-size: 18px;
+}
+/* .logout button a{
+    color: white;
+    font-size: 18px;
+} */
+
+#secondsection{
+    height: 80vh;
+    width: 100%;
+}
+
+.facility{
+    height: 70%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: -1;
+}
+
+.facility .box{
+    height: 100%;
+    width: 310px;
+    border: 2px solid white;
+    background-color: #0040ff;
+    z-index: -1;
+}
+
+.facility .box h2{
+    text-align: center;
+    position: relative;
+    top: 80%;
+    color: white;
+    background-color: #0000005e;
+}
+
+.box:nth-child(1){
+    background-image: url(../Images/swimingpool.jpg);
+    background-size: cover;
+}
+.box:nth-child(2){
+    background-image: url(../Images/spa.jpg);
+    background-size: cover;
+}
+.box:nth-child(3){
+    background-image: url(../Images/food.jpg);
+    background-size: cover;
+}
+.box:nth-child(4){
+    background-image: url(../Images/gym.jpg);
+    background-size: cover;
+}
+.box:nth-child(5){
+    background-image: url(../Images/service.jpeg);
+    background-size: cover
+}
+
+.head{
+    color: white;
+    margin-top: 150px;
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 50px;
+}
+
+
+footer{
+    margin-top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    
+}
+
+.footerContainer{
+    width: 100%;
+    padding: 70px 30px 20px;
+}
+
+.socialIcons{
+    display: flex;
+    justify-content: center;
+}
+
+.socialIcons a{
+    text-decoration: none;
+    padding: 10px;
+    background-color: white;
+    margin: 10px;
+    border-radius: 50%;
+}
+
+.socialIcons a i{
+    font-size: 2em;
+    color: black;
+    opacity: 0.9;
+}
+
+.socialIcons a:hover{
+    background-color: #111;
+    transition: 0.5s;
+}
+
+.socialIcons a:hover i{
+    background-color: white;
+    transition: 0.5s;
+}
+
+.footer-bottom{
+    text-align: center;
+}
+
+.footer-bottom p{
+    color: white;
+}
+
+
+

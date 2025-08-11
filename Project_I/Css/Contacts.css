@@ -1,0 +1,171 @@
+*{
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    background-color: green;
+}
+
+header{
+    position: relative;
+    overflow: hidden;
+}
+
+nav{
+    height: 55px;
+    background-color: green;
+}
+
+nav a{
+    float: left;
+    margin-left: 20px;
+}
+
+nav a.logo{
+    color:white;
+    font-size: 35px;
+    font-weight: bold;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+nav ul{ 
+float: left;
+margin-left: 30px;
+}
+
+nav ul li{
+    display: inline-block;
+    line-height: 55px;
+    margin: 0 15px;
+}
+
+nav ul li a{
+    color: white;
+    font-size: 18px;
+}
+
+nav ul li a:hover{
+    color: rgb(255, 255, 255,.7)
+}
+
+header nav .logout{
+    position: relative;
+    display: flex;
+    align-items: right;
+    justify-content: right;
+}
+
+.logout a{
+    color: white;
+    font-size: 18px;
+    padding: 17px;
+    background: #4caf50;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 30px;
+}
+
+
+.container{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+form{
+    background: white;
+    display: flex;
+    flex-direction: column;
+    padding: 2vw 4vw;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+form h1{
+    color: black;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+form input, form textarea{
+    border: 0;
+    margin: 10px 0;
+    padding: 20px;
+    outline: none;
+    background: #f5f5f5;
+    font-size: 16px;
+}
+
+form button{
+    padding: 15px;
+    background: #4caf50;
+    color: white;
+    font-size: 18px;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    width: 150px;
+    margin: 20px auto 0;
+    border-radius: 30px;
+}
+
+footer{
+    margin-top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    
+}
+
+.footerContainer{
+    width: 100%;
+    padding: 70px 30px 20px;
+}
+
+.socialIcons{
+    display: flex;
+    justify-content: center;
+}
+
+.socialIcons a{
+    text-decoration: none;
+    padding: 10px;
+    background-color: white;
+    margin: 10px;
+    border-radius: 50%;
+}
+
+.socialIcons a i{
+    font-size: 2em;
+    color: black;
+    opacity: 0.9;
+}
+
+.socialIcons a:hover{
+    background-color: #111;
+    transition: 0.5s;
+}
+
+.socialIcons a:hover i{
+    background-color: white;
+    transition: 0.5s;
+}
+
+.footer-bottom{
+    text-align: center;
+}
+
+.footer-bottom p{
+    color: white;
+}
