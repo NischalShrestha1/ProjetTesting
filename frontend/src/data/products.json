@@ -1,0 +1,52 @@
+[
+    {
+      "id": 1,
+      "name": "Naruto Hoodie",
+      "price": 39.99,
+      "image": "https://i.imgur.com/JqYeYn0.jpg",
+      "category": "clothing",
+      "description": "Premium quality hoodie featuring Naruto Uzumaki",
+      "rating": 4.5,
+      "tags": ["naruto", "hoodie", "clothing"]
+    },
+    {
+      "id": 2,
+      "name": "Goku Action Figure",
+      "price": 24.99,
+      "image": "https://i.imgur.com/LXK2xQp.jpg",
+      "category": "figures",
+      "description": "6\" Goku Super Saiyan figurine with stand",
+      "rating": 5,
+      "tags": ["dragon ball", "goku", "figure"]
+    },
+    {
+      "id": 3,
+      "name": "One Piece T-Shirt",
+      "price": 19.99,
+      "image": "https://i.imgur.com/VvWqW3k.jpg",
+      "category": "clothing",
+      "description": "100% cotton t-shirt with Straw Hat logo",
+      "rating": 4,
+      "tags": ["one piece", "t-shirt", "luffy"]
+    },
+    {
+      "id": 4,
+      "name": "Attack on Titan Poster",
+      "price": 14.99,
+      "image": "https://i.imgur.com/8Q3qZ2j.jpg",
+      "category": "posters",
+      "description": "High-quality poster featuring Eren and Mikasa",
+      "rating": 4.2,
+      "tags": ["attack on titan", "poster", "eren"]
+    },
+    {
+      "id": 5,
+      "name": "Demon Slayer Keychain",
+      "price": 9.99,
+      "image": "https://i.imgur.com/9zLmYfF.jpg",
+      "category": "accessories",
+      "description": "Official Demon Slayer character keychain",
+      "rating": 4.8,
+      "tags": ["demon slayer", "keychain", "nezuko"]
+    }
+  ]

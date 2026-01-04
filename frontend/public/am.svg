@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- A : white -->
+  <text x="56" y="368" 
+        font-family="Exo 2, sans-serif" 
+        font-size="240" 
+        font-weight="800" 
+        fill="#ffffff">A</text>
+  
+  <!-- M : pink -->
+  <text x="208" y="368" 
+        font-family="Exo 2, sans-serif" 
+        font-size="240" 
+        font-weight="800" 
+        fill="#FF2D78">M</text>
+</svg>
