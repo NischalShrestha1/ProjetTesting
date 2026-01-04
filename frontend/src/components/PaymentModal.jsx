@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSelector, useAppDispatch } from '../store/hooks'
+import { useAppSelector, useAppDispatch } from '../store/hooks'
 import { selectCartItems, selectCartTotal, clearCart, selectUser } from '../store'
 import axios from 'axios'
 
