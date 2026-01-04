@@ -37,7 +37,7 @@ import AllProductsPage from './pages/AllProductsPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://animerch-gjcd.onrender.com';
 
 function App() {
   const dispatch = useAppDispatch();
