@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'https://animerch-gjcd.onrender.com/api';
+const API_URL = 'https://animerch-rvt0.onrender.com/';
 
 // Load user from localStorage
 const loadUserFromStorage = () => {
