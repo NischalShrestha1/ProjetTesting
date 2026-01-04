@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://animerch-gjcd.onrender.com/api';
 
 // Async thunks
 export const fetchProducts = createAsyncThunk(
