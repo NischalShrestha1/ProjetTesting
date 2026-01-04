@@ -1,9 +1,11 @@
 import express from "express";
-import { createCategory, getCategories } from "../controllers/categoryController.js";
+import { createCategory, getCategories, updateCategory, deleteCategory } from "../controllers/categoryController.js";
+import { protect, admin } from "../middleware/auth.js";
 
 const router = express.Router();
-
-router.post("/", createCategory);
+router.post("/", protect, admin, createCategory);
 router.get("/", getCategories);
+router.put("/:id", protect, admin, updateCategory);
+router.delete("/:id", protect, admin, deleteCategory);
 
 export default router;
