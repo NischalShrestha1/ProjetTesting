@@ -3,7 +3,7 @@ import { useSelector, useAppDispatch } from '../store/hooks'
 import { selectCartItems, selectCartTotal, clearCart, selectUser } from '../store'
 import axios from 'axios'
 
-const backendUrl = "https://animerch-gjcd.onrender.com/api"
+const backendUrl = "https://animerch-rvt0.onrender.com/api"
 
 export default function PaymentModal({ onClose, user, onOrderSuccess }) {
   const dispatch = useAppDispatch()
