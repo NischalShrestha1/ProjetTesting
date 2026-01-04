@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import { selectIsAuthenticated } from '../store'
 import axios from 'axios'
 
-const backendUrl = "https://animerch-gjcd.onrender.com/api"
+const backendUrl = "https://animerch-rvt0.onrender.com/api"
 
 export default function DebugOrdersPage() {
   const isAuthenticated = useSelector(selectIsAuthenticated)
