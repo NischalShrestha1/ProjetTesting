@@ -151,7 +151,7 @@ const CategoryChart = ({ products, categories }) => {
   )
 }
 
-const backendUrl = "https://animerch-gjcd.onrender.com/api";
+const backendUrl = "https://animerch-rvt0.onrender.com/api";
 
 export default function AdminPanel({ products: initialProducts, categories: initialCategories, user }) {
   const token = useSelector(selectToken)
