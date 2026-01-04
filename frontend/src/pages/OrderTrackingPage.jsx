@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { selectUser, selectIsAuthenticated } from '../store'
 import axios from 'axios'
 
-const backendUrl = "http://localhost:5000/api"
+const backendUrl = "https://animerch-gjcd.onrender.com/api"
 
 const orderStages = [
   {
