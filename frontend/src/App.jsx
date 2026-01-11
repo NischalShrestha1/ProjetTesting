@@ -37,7 +37,7 @@ import AllProductsPage from './pages/AllProductsPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://animerch-rvt0.onrender.com';
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -176,16 +176,11 @@ function App() {
 
 const handleLogout = async () => {
     try {
-      await fetch(`${backendUrl}/api/users/logout`, {
-        method: 'GET',
-        credentials: 'include'
-      });
+      await dispatch(userLogout());
+      setIsAdmin(false);
     } catch (error) {
       console.error('Logout error:', error);
     }
-    
-    dispatch(userLogout());
-    setIsAdmin(false);
   };
 
   const handleOrderUpdate = (orders) => {

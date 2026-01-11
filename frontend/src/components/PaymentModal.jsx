@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
 import { selectCartItems, selectCartTotal, clearCart, selectUser } from '../store'
-import axios from 'axios'
-
-const backendUrl = "https://animerch-rvt0.onrender.com/api"
+import { api } from '../config/api'
 
 export default function PaymentModal({ onClose, user, onOrderSuccess }) {
   const dispatch = useAppDispatch()
@@ -46,20 +44,20 @@ export default function PaymentModal({ onClose, user, onOrderSuccess }) {
         return
       }
 
-      // Create order in backend
       const orderData = {
         orderItems: cart.map(item => ({
-          product: item._id || item.id,
+          product: item._id,
           name: item.name,
+          image: item.image,
           price: item.price,
           quantity: item.quantity,
-          image: item.image
+          size: item.selectedSize
         })),
         shippingAddress: {
           address: formData.billingAddress,
           phone: formData.phone
         },
-        paymentMethod: paymentMethod,
+        paymentMethod: paymentMethod === 'card' ? 'Card' : 'PayPal',
         itemsPrice: subtotal,
         shippingPrice: shipping,
         totalPrice: total
@@ -69,17 +67,15 @@ export default function PaymentModal({ onClose, user, onOrderSuccess }) {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
-        },
-        withCredentials: true
+        }
       }
 
-      console.log('Creating order with data:', orderData)
-      const response = await axios.post(`${backendUrl}/orders`, orderData, config)
+      const response = await api.post('/orders', orderData, config)
       console.log('Order created:', response.data)
-      
+
       // Clear cart
       dispatch(clearCart())
-      
+
       // Show success message
       const orderId = response.data.order?._id || response.data.order?.id || 'ORD-' + Date.now()
       alert(`Order placed successfully! Order ID: ${orderId}`)

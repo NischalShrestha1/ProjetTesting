@@ -1,10 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom"; // for redirect
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loginUser, registerUser, selectUserLoading, selectUserError, clearUserError } from '../store';
-
-const backendUrl = "https://animerch-rvt0.onrender.com/api";
 export default function AuthModal({ onClose, onUserUpdate }) {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectUserLoading);

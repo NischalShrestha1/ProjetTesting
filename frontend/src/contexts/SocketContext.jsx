@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { selectUser, selectIsAuthenticated } from '../store'
+import { updateProductInList } from '../store/slices/productsSlice'
+import { updateCartItemStock } from '../store/slices/cartSlice'
 
 const SocketContext = createContext()
 
@@ -17,10 +19,12 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null)
   const user = useSelector(selectUser)
   const isAuthenticated = useSelector(selectIsAuthenticated)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (isAuthenticated && user?.id) {
-      const newSocket = io('http://localhost:5000', {
+      const socketUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api', '') || 'http://localhost:5000';
+      const newSocket = io(socketUrl, {
         auth: {
           token: localStorage.getItem('token')
         }
@@ -36,6 +40,27 @@ export const SocketProvider = ({ children }) => {
         // Dispatch to Redux to update orders
         // This will trigger NotificationBell and OrdersPage to update
         window.dispatchEvent(new CustomEvent('order-status-updated', { detail: data }))
+      })
+
+      newSocket.on('stock-update', (data) => {
+        console.log('📨 Real-time stock update received:', data)
+
+        // Update product in Redux store
+        dispatch(updateProductInList({
+          _id: data.productId,
+          stock: data.newStock,
+          lowStockThreshold: data.lowStockThreshold
+        }))
+
+        // Update cart items if the product is in the cart
+        dispatch(updateCartItemStock({
+          productId: data.productId,
+          newStock: data.newStock,
+          newThreshold: data.lowStockThreshold
+        }))
+
+        // Broadcast to all components via CustomEvent
+        window.dispatchEvent(new CustomEvent('stock-update', { detail: data }))
       })
 
       newSocket.on('disconnect', () => {

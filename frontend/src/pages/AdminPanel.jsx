@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { selectToken } from '../store/slices/userSlice'
-import axios from 'axios'
+import { api } from '../config/api'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import { Bar, Pie } from 'react-chartjs-2'
+import StockManagement from '../components/StockManagement'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -151,8 +152,6 @@ const CategoryChart = ({ products, categories }) => {
   )
 }
 
-const backendUrl = "https://animerch-rvt0.onrender.com/api";
-
 export default function AdminPanel({ products: initialProducts, categories: initialCategories, user }) {
   const token = useSelector(selectToken)
 
@@ -173,16 +172,51 @@ export default function AdminPanel({ products: initialProducts, categories: init
   const [loading, setLoading] = useState(false)
   const [dashboardStats, setDashboardStats] = useState({})
   const [categorySearch, setCategorySearch] = useState('')
+  const [expandedOrders, setExpandedOrders] = useState(new Set())
   
   // Form visibility states
   const [showProductForm, setShowProductForm] = useState(false)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   
+  // Form states
+  const [productForm, setProductForm] = useState({
+    _id: '',
+    name: '',
+    price: '',
+    description: '',
+    categoryId: '',
+    image: '',
+    rating: '5',
+    tags: '',
+    stock: '0',
+    lowStockThreshold: '10',
+    sizes: ['S', 'M', 'L', 'XL']
+  })
+
+  const [categoryForm, setCategoryForm] = useState({
+    _id: '',
+    id: '',
+    name: '',
+    image: '',
+    description: ''
+  })
+
+  const [userForm, setUserForm] = useState({
+    _id: '',
+    firstname: '',
+    lastname: '',
+    username: '',
+    email: '',
+    address: '',
+    phone: '',
+    isAdmin: false
+  })
+
   // Fetch orders and users data
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/orders/admin/all`, authConfig)
+        const response = await api.get('/orders/admin/all', authConfig)
         setOrders(response.data.orders || response.data || [])
       } catch (error) {
         console.error('Error fetching orders:', error)
@@ -191,7 +225,7 @@ export default function AdminPanel({ products: initialProducts, categories: init
     
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/users`, authConfig)
+        const response = await api.get('/users', authConfig)
         setUsers(response.data.users || response.data || [])
       } catch (error) {
         console.error('Error fetching users:', error)
@@ -203,101 +237,102 @@ export default function AdminPanel({ products: initialProducts, categories: init
       fetchUsers()
     }
   }, [token])
-  
-  // Form states
-  const [productForm, setProductForm] = useState({
-    name: '',
-    price: '',
-    description: '',
-    categoryId: '',
-    image: '',
-    rating: '5',
-    tags: ''
-  })
-  
-  const [categoryForm, setCategoryForm] = useState({
-    id: '',
-    name: '',
-    image: '',
-    description: ''
-  })
 
+  // FIXED: Complete handleProductSubmit function
   const handleProductSubmit = async (e) => {
     e.preventDefault()
     try {
+      setLoading(true)
+      
+      // Prepare product data
       const productData = {
-        ...productForm,
+        name: productForm.name,
         price: parseFloat(productForm.price),
+        description: productForm.description,
+        category: productForm.categoryId,
+        image: productForm.image,
         rating: parseFloat(productForm.rating),
-        tags: productForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        category: productForm.categoryId // Backend expects 'category', not 'categoryId'
+        tags: productForm.tags ? productForm.tags.split(',').map(tag => tag.trim()) : [],
+        stock: parseInt(productForm.stock),
+        lowStockThreshold: parseInt(productForm.lowStockThreshold),
+        sizes: productForm.sizes || []
       }
       
-      // Remove categoryId as it's not needed in the backend
-      delete productData.categoryId
-      
+      let response
       if (productForm._id) {
         // Update existing product
-        await axios.put(`${backendUrl}/products/${productForm._id}`, productData, authConfig)
+        response = await api.put(`/products/${productForm._id}`, productData, authConfig)
         console.log('Product updated successfully')
       } else {
         // Create new product
-        await axios.post(`${backendUrl}/products`, productData, authConfig)
+        response = await api.post('/products', productData, authConfig)
         console.log('Product created successfully')
       }
       
       // Refresh products list
-      const response = await axios.get(`${backendUrl}/products`)
-      setProducts(response.data.products || response.data || [])
+      const productsResponse = await api.get('/products')
+      setProducts(productsResponse.data.products || productsResponse.data || [])
       
       // Reset form and hide
       setProductForm({
+        _id: '',
         name: '',
         price: '',
         description: '',
         categoryId: '',
         image: '',
         rating: '5',
-        tags: ''
+        tags: '',
+        stock: '0',
+        lowStockThreshold: '10',
+        sizes: ['S', 'M', 'L', 'XL']
       })
       setShowProductForm(false)
     } catch (error) {
       console.error('Error saving product:', error)
       console.error('Error details:', error.response?.data)
       alert(`Error: ${error.response?.data?.error || error.message}`)
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault()
     try {
+      setLoading(true)
+      
       // Generate ID if not provided
       const categoryData = {
-        ...categoryForm,
-        id: categoryForm.id || (categoryForm.name && categoryForm.name.toLowerCase().replace(/\s+/g, '-'))
+        name: categoryForm.name,
+        description: categoryForm.description,
+        image: categoryForm.image,
+        parent: categoryForm.parent || null
       }
       
       if (categoryForm._id) {
         // Update existing category
-        await axios.put(`${backendUrl}/categories/${categoryForm._id}`, categoryData, authConfig)
+        await api.put(`/categories/${categoryForm._id}`, categoryData, authConfig)
         console.log('Category updated successfully')
       } else {
         // Create new category
-        await axios.post(`${backendUrl}/categories`, categoryData, authConfig)
-        console.log('Category created successfully')
+        const response = await api.post('/categories', categoryData, authConfig)
+        console.log('Category created successfully', response.data)
       }
       
       // Refresh categories list
-      const response = await axios.get(`${backendUrl}/categories`)
+      const response = await api.get('/categories')
       setCategories(response.data.categories || response.data || [])
       
       // Reset form and hide
-      setCategoryForm({ id: '', name: '', image: '', description: '' })
+      setCategoryForm({ _id: '', id: '', name: '', image: '', description: '' })
       setShowCategoryForm(false)
     } catch (error) {
       console.error('Error saving category:', error)
       console.error('Error details:', error.response?.data)
       alert(`Error: ${error.response?.data?.error || error.message}`)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -310,7 +345,10 @@ export default function AdminPanel({ products: initialProducts, categories: init
       categoryId: product.categoryId || product.category,
       image: product.image,
       rating: product.rating?.toString() || '5',
-      tags: Array.isArray(product.tags) ? product.tags.join(', ') : ''
+      stock: (product.stock || 0).toString(),
+      lowStockThreshold: (product.lowStockThreshold || 10).toString(),
+      tags: Array.isArray(product.tags) ? product.tags.join(', ') : '',
+      sizes: product.sizes || ['S', 'M', 'L', 'XL']
     })
     setActiveTab('products')
     setShowProductForm(true)
@@ -331,10 +369,14 @@ export default function AdminPanel({ products: initialProducts, categories: init
   const deleteProduct = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`${backendUrl}/products/${id}`, authConfig)
+        setLoading(true)
+        await api.delete(`/products/${id}`, authConfig)
         setProducts(products.filter(p => p._id !== id && p.id !== id))
       } catch (error) {
         console.error('Error deleting product:', error)
+        alert('Error deleting product')
+      } finally {
+        setLoading(false)
       }
     }
   }
@@ -342,10 +384,14 @@ export default function AdminPanel({ products: initialProducts, categories: init
   const deleteCategory = async (id) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
-        await axios.delete(`${backendUrl}/categories/${id}`, authConfig)
+        setLoading(true)
+        await api.delete(`/categories/${id}`, authConfig)
         setCategories(categories.filter(c => c._id !== id && c.id !== id))
       } catch (error) {
         console.error('Error deleting category:', error)
+        alert('Error deleting category')
+      } finally {
+        setLoading(false)
       }
     }
   }
@@ -353,35 +399,44 @@ export default function AdminPanel({ products: initialProducts, categories: init
   const deleteUser = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`${backendUrl}/users/${id}`, authConfig)
+        setLoading(true)
+        await api.delete(`/users/${id}`, authConfig)
         setUsers(users.filter(u => u._id !== id && u.id !== id))
       } catch (error) {
         console.error('Error deleting user:', error)
+        alert('Error deleting user')
+      } finally {
+        setLoading(false)
       }
     }
   }
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`${backendUrl}/orders/${orderId}/status`, { status: newStatus }, authConfig)
+      setLoading(true)
+      const response = await api.put(`/orders/${orderId}/status`, { status: newStatus }, authConfig)
       setOrders(orders.map(order => 
         order._id === orderId ? response.data.order : order
       ))
     } catch (error) {
       console.error('Error updating order status:', error)
+      alert('Error updating order status')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const [userForm, setUserForm] = useState({
-    _id: '',
-    firstname: '',
-    lastname: '',
-    username: '',
-    email: '',
-    address: '',
-    phone: '',
-    isAdmin: false
-  })
+  const toggleOrderExpansion = (orderId) => {
+    setExpandedOrders(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId)
+      } else {
+        newSet.add(orderId)
+      }
+      return newSet
+    })
+  }
 
   const editUser = (user) => {
     setUserForm({
@@ -394,11 +449,14 @@ export default function AdminPanel({ products: initialProducts, categories: init
       phone: user.phone || '',
       isAdmin: user.isAdmin || false
     })
+    setActiveTab('users')
   }
 
   const handleUserSubmit = async (e) => {
     e.preventDefault()
     try {
+      setLoading(true)
+      
       if (userForm._id) {
         // Update existing user - exclude password field
         const updateData = {
@@ -411,11 +469,11 @@ export default function AdminPanel({ products: initialProducts, categories: init
           isAdmin: userForm.isAdmin
         }
         
-        await axios.put(`${backendUrl}/users/${userForm._id}`, updateData, authConfig)
+        await api.put(`/users/${userForm._id}`, updateData, authConfig)
         console.log('User updated successfully')
         
         // Refresh users list
-        const response = await axios.get(`${backendUrl}/users`, authConfig)
+        const response = await api.get('/users', authConfig)
         setUsers(response.data.users || response.data || [])
         
         // Reset form and hide
@@ -434,6 +492,8 @@ export default function AdminPanel({ products: initialProducts, categories: init
       console.error('Error updating user:', error)
       console.error('Error details:', error.response?.data)
       alert(`Error: ${error.response?.data?.message || error.response?.data?.error || error.message}`)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -448,6 +508,19 @@ export default function AdminPanel({ products: initialProducts, categories: init
             <Link to="/" className="bg-primary text-white px-4 py-2 rounded hover:bg-pink-600 inline-block mt-4">
               Back to Store
             </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading...</p>
           </div>
         </div>
       </div>
@@ -495,6 +568,12 @@ export default function AdminPanel({ products: initialProducts, categories: init
               onClick={() => setActiveTab('users')}
             >
               Users ({users.length})
+            </button>
+            <button
+              className={`px-6 py-3 font-medium ${activeTab === 'stock' ? 'text-primary border-b-2 border-primary' : 'text-gray-600'}`}
+              onClick={() => setActiveTab('stock')}
+            >
+              Stock Management
             </button>
           </div>
 
@@ -636,43 +715,114 @@ export default function AdminPanel({ products: initialProducts, categories: init
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map(order => (
-                        <tr key={order._id || order.id}>
-                          <td className="py-2 px-4 border-b">#{(order._id || order.id)?.slice(-6).toUpperCase()}</td>
-                          <td className="py-2 px-4 border-b">
-                            {order.user?.username || 
-                             `${order.user?.firstname || ''} ${order.user?.lastname || ''}`.trim() || 
-                             'N/A'}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td className="py-2 px-4 border-b">${order.totalPrice?.toFixed(2) || '0.00'}</td>
-                          <td className="py-2 px-4 border-b">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                              order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
-                              order.status === 'Shipped' ? 'bg-yellow-100 text-yellow-800' :
-                              order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {order.status || 'Processing'}
-                            </span>
-                          </td>
-                          <td className="py-2 px-4 border-b space-x-2">
-                            <select 
-                              value={order.status || 'Processing'}
-                              onChange={(e) => updateOrderStatus(order._id || order.id, e.target.value)}
-                              className="text-sm border rounded px-2 py-1"
-                            >
-                              <option value="Processing">Processing</option>
-                              <option value="Shipped">Shipped</option>
-                              <option value="Delivered">Delivered</option>
-                              <option value="Cancelled">Cancelled</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
+                      {orders.map(order => {
+                        const orderId = order._id || order.id
+                        const isExpanded = expandedOrders.has(orderId)
+                        
+                        return (
+                          <React.Fragment key={orderId}>
+                            <tr className="hover:bg-gray-50">
+                              <td className="py-2 px-4 border-b">
+                                <button
+                                  onClick={() => toggleOrderExpansion(orderId)}
+                                  className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                >
+                                  #{orderId?.slice(-6).toUpperCase()}
+                                  <span className="text-xs">
+                                    {isExpanded ? '▼' : '▶'}
+                                  </span>
+                                </button>
+                              </td>
+                              <td className="py-2 px-4 border-b">
+                                {order.user?.username || 
+                                 `${order.user?.firstname || ''} ${order.user?.lastname || ''}`.trim() || 
+                                 'N/A'}
+                              </td>
+                              <td className="py-2 px-4 border-b">
+                                {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                              </td>
+                              <td className="py-2 px-4 border-b">${order.totalPrice?.toFixed(2) || '0.00'}</td>
+                              <td className="py-2 px-4 border-b">
+                                <span className={`px-2 py-1 rounded-full text-xs ${
+                                  order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                  order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                                  order.status === 'Shipped' ? 'bg-yellow-100 text-yellow-800' :
+                                  order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {order.status || 'Processing'}
+                                </span>
+                              </td>
+                              <td className="py-2 px-4 border-b space-x-2">
+                                <select 
+                                  value={order.status || 'Processing'}
+                                  onChange={(e) => updateOrderStatus(orderId, e.target.value)}
+                                  className="text-sm border rounded px-2 py-1"
+                                >
+                                  <option value="Processing">Processing</option>
+                                  <option value="Shipped">Shipped</option>
+                                  <option value="Delivered">Delivered</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </td>
+                            </tr>
+                            
+                            {/* Expandable row for order details */}
+                            {isExpanded && (
+                              <tr>
+                                <td colSpan="6" className="px-4 py-3 bg-gray-50">
+                                  <div className="space-y-4">
+                                    <h4 className="font-semibold text-gray-800">Order Items</h4>
+                                    {order.orderItems && order.orderItems.length > 0 ? (
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {order.orderItems.map((item, index) => (
+                                          <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
+                                            <div className="flex items-start gap-3">
+                                              <img 
+                                                src={item.image} 
+                                                alt={item.name}
+                                                className="w-16 h-16 object-cover rounded"
+                                              />
+                                              <div className="flex-1">
+                                                <h5 className="font-medium text-gray-800">{item.name}</h5>
+                                                <div className="text-sm text-gray-600 space-y-1">
+                                                  <p>Quantity: <span className="font-medium">{item.quantity}</span></p>
+                                                  <p>Price: <span className="font-medium">${item.price?.toFixed(2)}</span></p>
+                                                  {item.size && (
+                                                    <p>Size: <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">{item.size}</span></p>
+                                                  )}
+                                                  {!item.size && (
+                                                    <p className="text-xs text-gray-400">Size: Not specified</p>
+                                                  )}
+                                                  <p>Total: <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span></p>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p className="text-gray-500">No order items found</p>
+                                    )}
+                                    
+                                    {/* Shipping Address */}
+                                    {order.shippingAddress && (
+                                      <div>
+                                        <h5 className="font-semibold text-gray-800 mb-2">Shipping Address</h5>
+                                        <div className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200">
+                                          <p><strong>Address:</strong> {order.shippingAddress.address}</p>
+                                          <p><strong>Phone:</strong> {order.shippingAddress.phone}</p>
+                                          <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        )
+                      })}
                     </tbody>
                   </table>
                   {orders.length === 0 && (
@@ -692,7 +842,7 @@ export default function AdminPanel({ products: initialProducts, categories: init
                 {userForm._id && (
                   <div className="bg-gray-50 p-6 rounded-lg mb-6">
                     <h3 className="text-lg font-medium mb-4">Edit User</h3>
-                  <form onSubmit={handleUserSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={handleUserSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                         <input
@@ -781,7 +931,7 @@ export default function AdminPanel({ products: initialProducts, categories: init
                         </button>
                       </div>
                     </form>
-                </div>
+                  </div>
                 )}
                 
                 {/* Users Table */}
@@ -837,6 +987,10 @@ export default function AdminPanel({ products: initialProducts, categories: init
               </div>
             )}
 
+            {activeTab === 'stock' && (
+              <StockManagement authConfig={authConfig} />
+            )}
+
             {activeTab === 'products' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -844,13 +998,17 @@ export default function AdminPanel({ products: initialProducts, categories: init
                   <button
                     onClick={() => {
                       setProductForm({
+                        _id: '',
                         name: '',
                         price: '',
                         description: '',
                         categoryId: '',
                         image: '',
                         rating: '5',
-                        tags: ''
+                        tags: '',
+                        stock: '0',
+                        lowStockThreshold: '10',
+                        sizes: ['S', 'M', 'L', 'XL']
                       })
                       setShowProductForm(true)
                     }}
@@ -866,109 +1024,157 @@ export default function AdminPanel({ products: initialProducts, categories: init
                     <h3 className="text-lg font-medium mb-4">
                       {productForm._id ? 'Edit Product' : 'Add New Product'}
                     </h3>
-                  <form onSubmit={handleProductSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                      <input
-                        type="text"
-                        value={productForm.name}
-                        onChange={(e) => setProductForm({...productForm, name: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={productForm.price}
-                        onChange={(e) => setProductForm({...productForm, price: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                      <select
-                        value={productForm.categoryId}
-                        onChange={(e) => setProductForm({...productForm, categoryId: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map(category => (
-                          <option key={category._id || category.id} value={category._id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        step="0.1"
-                        value={productForm.rating}
-                        onChange={(e) => setProductForm({...productForm, rating: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <textarea
-                        value={productForm.description}
-                        onChange={(e) => setProductForm({...productForm, description: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows="3"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                      <input
-                        type="text"
-                        value={productForm.image}
-                        onChange={(e) => setProductForm({...productForm, image: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
-                      <input
-                        type="text"
-                        value={productForm.tags}
-                        onChange={(e) => setProductForm({...productForm, tags: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="anime, manga, figure"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex space-x-2">
-                      <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                        {productForm._id ? 'Update Product' : 'Add Product'}
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          setProductForm({
-                            name: '',
-                            price: '',
-                            description: '',
-                            categoryId: '',
-                            image: '',
-                            rating: '5',
-                            tags: ''
-                          })
-                          setShowProductForm(false)
-                        }}
-                        className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                    <form onSubmit={handleProductSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input
+                          type="text"
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={productForm.price}
+                          onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select
+                          value={productForm.categoryId}
+                          onChange={(e) => setProductForm({...productForm, categoryId: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        >
+                          <option value="">Select Category</option>
+                          {categories.map(category => (
+                            <option key={category._id || category.id} value={category._id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="5"
+                          step="0.1"
+                          value={productForm.rating}
+                          onChange={(e) => setProductForm({...productForm, rating: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sizes</label>
+                        <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
+                          {["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"].map(size => (
+                            <label key={size} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                value={size}
+                                checked={productForm.sizes?.includes(size) || false}
+                                onChange={(e) => {
+                                  const sizes = e.target.checked 
+                                    ? [...(productForm.sizes || []), size]
+                                    : (productForm.sizes || []).filter(s => s !== size);
+                                  setProductForm({...productForm, sizes});
+                                }}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{size}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">Select available sizes for this product</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={productForm.stock}
+                          onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Low Stock Threshold</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={productForm.lowStockThreshold}
+                          onChange={(e) => setProductForm({...productForm, lowStockThreshold: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          value={productForm.description}
+                          onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows="3"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                        <input
+                          type="text"
+                          value={productForm.image}
+                          onChange={(e) => setProductForm({...productForm, image: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
+                        <input
+                          type="text"
+                          value={productForm.tags}
+                          onChange={(e) => setProductForm({...productForm, tags: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="anime, manga, figure"
+                        />
+                      </div>
+                      <div className="md:col-span-2 flex space-x-2">
+                        <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                          {productForm._id ? 'Update Product' : 'Add Product'}
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setProductForm({
+                              _id: '',
+                              name: '',
+                              price: '',
+                              description: '',
+                              categoryId: '',
+                              image: '',
+                              rating: '5',
+                              stock: '0',
+                              lowStockThreshold: '10',
+                              tags: '',
+                              sizes: ['S', 'M', 'L', 'XL']
+                            })
+                            setShowProductForm(false)
+                          }}
+                          className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 )}
                 
                 {/* Products Table */}
@@ -979,6 +1185,7 @@ export default function AdminPanel({ products: initialProducts, categories: init
                         <th className="py-2 px-4 border-b">Name</th>
                         <th className="py-2 px-4 border-b">Price</th>
                         <th className="py-2 px-4 border-b">Category</th>
+                        <th className="py-2 px-4 border-b">Stock</th>
                         <th className="py-2 px-4 border-b">Rating</th>
                         <th className="py-2 px-4 border-b">Actions</th>
                       </tr>
@@ -990,6 +1197,15 @@ export default function AdminPanel({ products: initialProducts, categories: init
                           <td className="py-2 px-4 border-b">${product.price.toFixed(2)}</td>
                           <td className="py-2 px-4 border-b">
                             {product.category?.name || 'N/A'}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            <span className={`font-medium ${
+                              (product.stock || 0) === 0 ? 'text-red-600' : 
+                              (product.stock || 0) <= (product.lowStockThreshold || 10) ? 'text-yellow-600' : 'text-green-600'
+                            }`}>
+                              {(product.stock || 0) === 0 ? 'Out of Stock' : 
+                               (product.stock || 0) <= (product.lowStockThreshold || 10) ? `${product.stock || 0} (Low)` : `${product.stock || 0}`}
+                            </span>
                           </td>
                           <td className="py-2 px-4 border-b">{product.rating || 'N/A'}</td>
                           <td className="py-2 px-4 border-b space-x-2">
@@ -1020,7 +1236,7 @@ export default function AdminPanel({ products: initialProducts, categories: init
                   <h2 className="text-xl font-semibold">Categories Management</h2>
                   <button
                     onClick={() => {
-                      setCategoryForm({ id: '', name: '', image: '', description: '' })
+                      setCategoryForm({ _id: '', id: '', name: '', image: '', description: '' })
                       setShowCategoryForm(true)
                     }}
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -1035,62 +1251,62 @@ export default function AdminPanel({ products: initialProducts, categories: init
                     <h3 className="text-lg font-medium mb-4">
                       {categoryForm._id ? 'Edit Category' : 'Add New Category'}
                     </h3>
-                  <form onSubmit={handleCategorySubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                      <input
-                        type="text"
-                        value={categoryForm.name}
-                        onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">ID</label>
-                      <input
-                        type="text"
-                        value={categoryForm.id}
-                        onChange={(e) => setCategoryForm({...categoryForm, id: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="auto-generated if empty"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <textarea
-                        value={categoryForm.description}
-                        onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows="3"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                      <input
-                        type="text"
-                        value={categoryForm.image}
-                        onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex space-x-2">
-                      <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                        {categoryForm._id ? 'Update Category' : 'Add Category'}
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          setCategoryForm({ id: '', name: '', image: '', description: '' })
-                          setShowCategoryForm(false)
-                        }}
-                        className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                    <form onSubmit={handleCategorySubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input
+                          type="text"
+                          value={categoryForm.name}
+                          onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">ID</label>
+                        <input
+                          type="text"
+                          value={categoryForm.id}
+                          onChange={(e) => setCategoryForm({...categoryForm, id: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="auto-generated if empty"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          value={categoryForm.description}
+                          onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows="3"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                        <input
+                          type="text"
+                          value={categoryForm.image}
+                          onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2 flex space-x-2">
+                        <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                          {categoryForm._id ? 'Update Category' : 'Add Category'}
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setCategoryForm({ _id: '', id: '', name: '', image: '', description: '' })
+                            setShowCategoryForm(false)
+                          }}
+                          className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 )}
                 
                 {/* Categories Table */}
@@ -1139,5 +1355,5 @@ export default function AdminPanel({ products: initialProducts, categories: init
         </div>
       </div>
     </div>
-    )
+  )
 }

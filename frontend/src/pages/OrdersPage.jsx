@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -54,50 +53,41 @@ const OrdersPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          <p className="text-xl mt-4">Loading your orders...</p>
+      <h1 className="text-3xl font-bold mb-8">Your Orders</h1>
+      
+      {loading && (
+        <div className="text-center py-8">
+          <p>Loading your orders...</p>
         </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600">{error}</p>
+      )}
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>{error}</p>
           <button 
-            onClick={() => {
-              dispatch(clearUserError())
-              dispatch(fetchOrders())
-            }}
-            className="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded"
+            onClick={() => dispatch(clearUserError())}
+            className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
           >
-            Try Again
+            Clear Error
           </button>
         </div>
-      ) : (
-        <>
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4">Your <span className="text-primary">Orders</span></h2>
-            <p className="text-gray-600">
-              {orders.length === 0 ? 
-                "You haven't placed any orders yet." : 
-                `You have ${orders.length} ${orders.length === 1 ? 'order' : 'orders'}`
-              }
-            </p>
-          </div>
+      )}
 
-          {orders.length === 0 ? (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold mb-4">Start Shopping</h2>
+      {!loading && !error && (
+        <>
+          {orders && orders.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600 mb-4">You haven't placed any orders yet.</p>
               <Link 
                 to="/shop"
                 className="bg-primary hover:bg-pink-600 text-white font-bold py-2 px-6 rounded inline-block transition"
               >
-                Shop Now
+                Start Shopping
               </Link>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {orders.map(order => (
+            <div className="space-y-6">
+              {orders?.map(order => (
                 <div key={order._id || order.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -109,10 +99,37 @@ const OrdersPage = () => {
                         {order.status || 'Processing'}
                       </span>
                     </div>
-                  </div>
-                  <div>
                     <div className="flex items-center space-x-2">
                       <Link to={`/orders/${order._id || order.id}`} className="text-blue-600 hover:text-blue-800 underline">View Details</Link>
+                    </div>
+                  </div>
+                  
+                  {/* Show order items with sizes */}
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-700 mb-3">Order Items</h4>
+                    <div className="space-y-3">
+                      {order.orderItems?.map((item, index) => (
+                        <div key={index} className="flex items-center space-x-4 pb-4 border-b last:border-b-0">
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-medium">{item.name}</h4>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <span>Quantity: {item.quantity}</span>
+                              {item.size && (
+                                <span className="px-2 py-1 bg-gray-100 rounded text-xs">Size: {item.size}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                            <p className="text-sm text-gray-600">${item.price.toFixed(2)} each</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -120,7 +137,7 @@ const OrdersPage = () => {
             </div>
           )}
 
-          {orders.length > 0 && (
+          {orders && orders.length > 0 && (
             <div className="text-center mt-8">
               <Link 
                 to="/shop"

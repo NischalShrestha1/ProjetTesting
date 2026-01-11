@@ -18,12 +18,12 @@ export default function CartPage({ setShowAuthModal }) {
   const user = useAppSelector(selectUser);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const updateQuantity = (id, quantity) => {
-    dispatch(updateCartItem({ id, quantity }));
+  const updateQuantity = (id, quantity, selectedSize) => {
+    dispatch(updateCartItem({ id, quantity, selectedSize }));
   }
 
-  const removeItem = (id) => {
-    dispatch(removeFromCart(id));
+  const removeItem = (id, selectedSize) => {
+    dispatch(removeFromCart({ id, selectedSize }));
   }
   
   const handleCheckout = () => {
@@ -83,9 +83,14 @@ export default function CartPage({ setShowAuthModal }) {
                       />
                       <div>
                         <h3 className="font-bold">{item.name}</h3>
+                        {item.selectedSize && (
+                          <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                            Size: {item.selectedSize}
+                          </span>
+                        )}
                         <button 
-                          onClick={() => removeItem(item._id || item.id)}
-                          className="text-red-500 text-sm hover:underline"
+                          onClick={() => removeItem(item._id || item.id, item.selectedSize)}
+                          className="text-red-500 text-sm hover:underline mt-2 block"
                         >
                           Remove
                         </button>
@@ -97,14 +102,14 @@ export default function CartPage({ setShowAuthModal }) {
                     <div className="col-span-2 flex justify-center">
                       <div className="flex border border-gray-300 rounded">
                         <button 
-                          onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item._id || item.id, item.quantity - 1, item.selectedSize)}
                           className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
                         >
                           -
                         </button>
                         <span className="px-4 py-1">{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item._id || item.id, item.quantity + 1, item.selectedSize)}
                           className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
                         >
                           +

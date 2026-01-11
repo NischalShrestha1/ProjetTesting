@@ -41,10 +41,10 @@ export default function Categories() {
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <Link 
               to={`/category/${category.id}`} 
-              key={category.id}
+              key={`${category.id}-${index}`}
               className="relative rounded-lg overflow-hidden group"
             >
               <img 

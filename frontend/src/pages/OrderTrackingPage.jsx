@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { selectUser, selectIsAuthenticated } from '../store'
 import axios from 'axios'
 
-const backendUrl = "https://animerch-rvt0.onrender.com/api"
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://animerch-rvt0.onrender.com/api"
 
 const orderStages = [
   {
@@ -299,7 +299,12 @@ console.log('📋 OrderTrackingPage: Render state:', { loading, error, order })
                   />
                   <div className="flex-1">
                     <h4 className="font-medium">{item.name}</h4>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span>Quantity: {item.quantity}</span>
+                      {item.size && (
+                        <span className="px-2 py-1 bg-gray-100 rounded text-xs">Size: {item.size}</span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-const API_URL = 'https://animerch-rvt0.onrender.com/api';
+import { API_URL } from '../../config/api';
 
 // Async thunk to fetch categories
 export const fetchCategories = createAsyncThunk(
