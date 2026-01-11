@@ -79,8 +79,8 @@ jobs:
         with:
           sarif_file: snyk-code.sarif
 
-        - name: Debug SNYK token presence
-          run: |
+      - name: Debug SNYK token presence
+        run: |
               if [ -z "$SNYK_TOKEN" ]; then
                 echo "❌ SNYK_TOKEN is NOT set"
               exit 1
