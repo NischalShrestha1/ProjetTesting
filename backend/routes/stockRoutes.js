@@ -1,11 +1,17 @@
 import express from 'express';
 import { protect, admin } from '../middleware/auth.js';
 import Product from '../models/Product.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
+const stockLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs for stock operations
+});
+
 // Get low stock products
-router.get('/low-stock', protect, admin, async (req, res) => {
+router.get('/low-stock', protect, admin, stockLimiter, async (req, res) => {
   try {
     const products = await Product.find({
       $expr: {
@@ -24,7 +30,7 @@ router.get('/low-stock', protect, admin, async (req, res) => {
 });
 
 // Get out of stock products
-router.get('/out-of-stock', protect, admin, async (req, res) => {
+router.get('/out-of-stock', protect, admin, stockLimiter, async (req, res) => {
   try {
     const products = await Product.find({ stock: 0 }).populate('category');
     
@@ -36,7 +42,7 @@ router.get('/out-of-stock', protect, admin, async (req, res) => {
 });
 
 // Update stock
-router.put('/:productId', protect, async (req, res) => {
+router.put('/:productId', protect, stockLimiter, async (req, res) => {
   try {
 
     
