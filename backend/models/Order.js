@@ -22,6 +22,10 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1
+  },
+  size: {
+    type: String,
+    required: false
   }
 });
 
@@ -89,6 +93,10 @@ const orderSchema = new mongoose.Schema({
     required: true,
     enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
     default: 'Processing'
+  },
+  stockUpdated: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

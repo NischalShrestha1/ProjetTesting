@@ -1,4 +1,5 @@
 import Order from '../models/Order.js';
+import Product from '../models/Product.js';
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -18,6 +19,22 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product not found: ${item.name}`
+        });
+      }
+      if (product.stock < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for ${product.name}. Only ${product.stock} available.`
+        });
+      }
+    }
+
     const order = new Order({
       user: req.user.id,
       orderItems,
@@ -29,6 +46,31 @@ export const createOrder = async (req, res, next) => {
     });
 
     const createdOrder = await order.save();
+
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        product.stock -= item.quantity;
+        if (product.stock < 0) product.stock = 0;
+        await product.save();
+      }
+    }
+
+    const io = req.app.get('io');
+    if (io) {
+      for (const item of orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          io.emit('stock-update', {
+            productId: product._id,
+            productName: product.name,
+            newStock: product.stock,
+            lowStockThreshold: product.lowStockThreshold,
+            updatedBy: { isAdmin: false, userId: req.user.id }
+          });
+        }
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -92,6 +134,7 @@ export const updateOrderStatus = async (req, res, next) => {
       });
     }
 
+    const oldStatus = order.status;
     order.status = req.body.status || order.status;
 
     if (req.body.status === 'Delivered') {
@@ -99,9 +142,29 @@ export const updateOrderStatus = async (req, res, next) => {
       order.deliveredAt = Date.now();
     }
 
+    if (req.body.status === 'Cancelled' && oldStatus !== 'Cancelled') {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.stock += item.quantity;
+          await product.save();
+
+          const io = req.app.get('io');
+          if (io) {
+            io.emit('stock-update', {
+              productId: product._id,
+              productName: product.name,
+              newStock: product.stock,
+              lowStockThreshold: product.lowStockThreshold,
+              updatedBy: { isAdmin: true, userId: req.user.id }
+            });
+          }
+        }
+      }
+    }
+
     const updatedOrder = await order.save();
 
-    // Emit real-time update to user
     const io = req.app.get('io');
     if (io && order.user) {
       io.to(`user-${order.user}`).emit('order-status-updated', {

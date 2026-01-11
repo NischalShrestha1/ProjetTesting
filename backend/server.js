@@ -12,6 +12,9 @@ import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import ratingRoutes from "./routes/ratingRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
+import stockRoutes from "./routes/stockRoutes.js";
 dotenv.config();
 connectDB();
 
@@ -46,6 +49,9 @@ app.use("/api/products", productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/stock', stockRoutes);
 app.use(errorHandler);
 
 // Test route   
