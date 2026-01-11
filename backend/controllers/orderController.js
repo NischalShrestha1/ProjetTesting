@@ -20,7 +20,7 @@ export const createOrder = async (req, res, next) => {
     }
 
     for (const item of orderItems) {
-      const product = await Product.findById(item.product);
+      const product = await Product.findOne({ _id: { $eq: item.product } });
       if (!product) {
         return res.status(404).json({
           success: false,
@@ -48,7 +48,7 @@ export const createOrder = async (req, res, next) => {
     const createdOrder = await order.save();
 
     for (const item of orderItems) {
-      const product = await Product.findById(item.product);
+      const product = await Product.findOne({ _id: { $eq: item.product } });
       if (product) {
         product.stock -= item.quantity;
         if (product.stock < 0) product.stock = 0;
@@ -59,7 +59,7 @@ export const createOrder = async (req, res, next) => {
     const io = req.app.get('io');
     if (io) {
       for (const item of orderItems) {
-        const product = await Product.findById(item.product);
+        const product = await Product.findOne({ _id: { $eq: item.product } });
         if (product) {
           io.emit('stock-update', {
             productId: product._id,
