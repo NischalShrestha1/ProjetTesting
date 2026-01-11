@@ -13,6 +13,13 @@ const orderCreationLimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
+const adminStatsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // limit each IP to 50 admin stats requests per window
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
 // All routes are protected
 router.use(protect);
 
@@ -20,7 +27,7 @@ router.use(protect);
 router.get("/check-delivery/:productId", checkDeliveryStatus);
 router.post("/test-delivered/:productId", createTestDeliveredOrder);
 router.get("/admin/all", admin, getAllOrders);
-router.get("/admin/stats", admin, getOrderStats);
+router.get("/admin/stats", adminStatsLimiter, admin, getOrderStats);
 
 router.post("/", orderCreationLimiter, createOrder);
 router.get("/", getOrders);
