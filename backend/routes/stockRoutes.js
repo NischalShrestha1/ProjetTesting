@@ -42,7 +42,7 @@ router.get('/out-of-stock', protect, admin, stockLimiter, async (req, res) => {
 });
 
 // Update stock
-router.put('/:productId', protect, stockLimiter, async (req, res) => {
+router.put('/:productId', protect, admin, stockLimiter, async (req, res) => {
   try {
 
     
