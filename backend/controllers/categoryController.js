@@ -40,9 +40,21 @@ export const getCategories = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
+    // Whitelist allowed fields to prevent injection of update operators
+    const updateData = {};
+    if (typeof req.body.name !== "undefined") {
+      updateData.name = req.body.name;
+    }
+    if (typeof req.body.image !== "undefined") {
+      updateData.image = req.body.image;
+    }
+    if (typeof req.body.description !== "undefined") {
+      updateData.description = req.body.description;
+    }
+
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     
