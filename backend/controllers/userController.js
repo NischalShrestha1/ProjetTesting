@@ -105,13 +105,77 @@ export const getProfile = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const fieldsToUpdate = {};
-    if (req.body.firstname !== undefined) fieldsToUpdate.firstname = req.body.firstname;
-    if (req.body.lastname !== undefined) fieldsToUpdate.lastname = req.body.lastname;
-    if (req.body.username !== undefined) fieldsToUpdate.username = req.body.username;
-    if (req.body.email !== undefined) fieldsToUpdate.email = req.body.email;
-    if (req.body.password !== undefined) fieldsToUpdate.password = req.body.password;
-    if (req.body.address !== undefined) fieldsToUpdate.address = req.body.address;
-    if (req.body.phone !== undefined) fieldsToUpdate.phone = req.body.phone;
+
+    // Validate and assign updatable fields from the request body
+    if (req.body.firstname !== undefined) {
+      if (typeof req.body.firstname !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid firstname format',
+        });
+      }
+      fieldsToUpdate.firstname = req.body.firstname;
+    }
+
+    if (req.body.lastname !== undefined) {
+      if (typeof req.body.lastname !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid lastname format',
+        });
+      }
+      fieldsToUpdate.lastname = req.body.lastname;
+    }
+
+    if (req.body.username !== undefined) {
+      if (typeof req.body.username !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid username format',
+        });
+      }
+      fieldsToUpdate.username = req.body.username;
+    }
+
+    if (req.body.email !== undefined) {
+      if (typeof req.body.email !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format',
+        });
+      }
+      fieldsToUpdate.email = req.body.email;
+    }
+
+    if (req.body.password !== undefined) {
+      if (typeof req.body.password !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid password format',
+        });
+      }
+      fieldsToUpdate.password = req.body.password;
+    }
+
+    if (req.body.address !== undefined) {
+      if (typeof req.body.address !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid address format',
+        });
+      }
+      fieldsToUpdate.address = req.body.address;
+    }
+
+    if (req.body.phone !== undefined) {
+      if (typeof req.body.phone !== 'string' && typeof req.body.phone !== 'number') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone format',
+        });
+      }
+      fieldsToUpdate.phone = req.body.phone;
+    }
 
     if (req.body.email) {
       const email = req.body.email;
