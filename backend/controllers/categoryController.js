@@ -42,19 +42,24 @@ export const updateCategory = async (req, res) => {
   try {
     // Whitelist allowed fields to prevent injection of update operators
     const updateData = {};
-    if (typeof req.body.name !== "undefined") {
+    if (typeof req.body.name !== "undefined" && typeof req.body.name === "string") {
       updateData.name = req.body.name;
     }
-    if (typeof req.body.image !== "undefined") {
+    if (typeof req.body.image !== "undefined" && typeof req.body.image === "string") {
       updateData.image = req.body.image;
     }
-    if (typeof req.body.description !== "undefined") {
+    if (typeof req.body.description !== "undefined" && typeof req.body.description === "string") {
       updateData.description = req.body.description;
+    }
+
+    // If no valid fields were provided, reject the request
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "No valid fields provided for update" });
     }
 
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      updateData,
+      { $set: updateData },
       { new: true, runValidators: true }
     );
     
