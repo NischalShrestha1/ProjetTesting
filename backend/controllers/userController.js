@@ -181,6 +181,59 @@ export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { email, username, firstname, lastname, address, phone, isAdmin } = req.body;
+
+    // Validate input types to prevent NoSQL injection via update document
+    const isPlainString = (value) =>
+      typeof value === 'string' || value instanceof String;
+
+    if (email !== undefined && !isPlainString(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format',
+      });
+    }
+
+    if (username !== undefined && !isPlainString(username)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid username format',
+      });
+    }
+
+    if (firstname !== undefined && !isPlainString(firstname)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid firstname format',
+      });
+    }
+
+    if (lastname !== undefined && !isPlainString(lastname)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid lastname format',
+      });
+    }
+
+    if (address !== undefined && !isPlainString(address)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid address format',
+      });
+    }
+
+    if (phone !== undefined && !isPlainString(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone format',
+      });
+    }
+
+    if (isAdmin !== undefined && typeof isAdmin !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid isAdmin value',
+      });
+    }
     
     const fieldsToUpdate = {};
     if (email !== undefined) fieldsToUpdate.email = email;
