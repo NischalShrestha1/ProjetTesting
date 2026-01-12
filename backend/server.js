@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import csrf from "csurf";
 import connectDB from "./config/db.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { createServer } from "http";
@@ -42,6 +43,15 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// CSRF protection middleware (uses cookie-based tokens)
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
+
+// Route to provide CSRF token to clients
+app.get("/api/csrf-token", (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // Routes
 app.use("/api/categories", categoryRoutes);
