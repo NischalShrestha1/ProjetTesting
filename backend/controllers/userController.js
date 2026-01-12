@@ -114,8 +114,15 @@ export const updateProfile = async (req, res, next) => {
     if (req.body.phone !== undefined) fieldsToUpdate.phone = req.body.phone;
 
     if (req.body.email) {
+      const email = req.body.email;
+      if (typeof email !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format',
+        });
+      }
       const emailExists = await User.findOne({
-        email: req.body.email,
+        email: { $eq: email },
         _id: { $ne: req.user.id },
       });
       if (emailExists) {
